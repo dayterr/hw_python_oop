@@ -11,14 +11,15 @@ class Calculator:
         self.records.append(rec)
 
     def get_today_stats(self):
-        today = sum([rec.amount for rec in self.records if rec.date == dt.datetime.now().date()]) or 0
+        now = dt.datetime.now().date()
+        today = sum([rec.amount for rec in self.records if rec.date == now])
         return today
 
     def get_week_stats(self):
-        week_ago = dt.datetime.now().date() - dt.timedelta(weeks=1)
-        weekly = sum([rec.amount for rec in self.records if dt.datetime.now().date() >= rec.date >= week_ago])
+        now = dt.datetime.now().date()
+        week = now - dt.timedelta(weeks=1)
+        weekly = sum([r.amount for r in self.records if now >= r.date >= week])
         return weekly
-
 
 
 class Record:
