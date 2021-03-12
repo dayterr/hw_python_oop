@@ -2,8 +2,64 @@ import datetime as dt
 
 
 class Calculator:
-    pass
+
+    def __init__(self, limit):
+        self.limit = limit
+        self.records = []
+
+    def add_record(self, rec):
+        self.records.append(rec)
+
+    def get_today_stats(self):
+        today = sum([rec.amount for rec in self.records if rec.date == dt.datetime.now().date()]) or 0
+        return today
+
+    def get_week_stats(self):
+        week_ago = dt.datetime.now().date() - dt.timedelta(weeks=1)
+        weekly = sum([rec.amount for rec in self.records if dt.datetime.now().date() >= rec.date >= week_ago])
+        return weekly
+
 
 
 class Record:
-    pass
+
+    def __init__(self, amount, comment, date=None):
+        self.amount = amount
+        self.comment = comment
+        if date is not None:
+            self.date = dt.datetime.strptime(date, '%d.%m.%Y').date()
+        else:
+            self.date = dt.datetime.now().date()
+
+
+class CaloriesCalculator(Calculator):
+
+    def get_calories_remained(self):
+        today = self.get_today_stats()
+        to_eat = self.limit - today
+        if to_eat > 0:
+            return f"Сегодня можно съесть что-нибудь ещё, но с общей калорийностью не более {to_eat} кКал"
+        else:
+            return "Хватит есть!"
+
+
+class CashCalculator(Calculator):
+
+    USD_RATE = 73.4
+    EURO_RATE = 87.52
+
+    def get_today_cash_remained(self, currency):
+        today_cash = self.limit - self.get_today_stats()
+        curr = 'руб'
+        if currency == 'usd':
+            today_cash = round(today_cash / self.USD_RATE, 2)
+            curr = "USD"
+        elif currency == 'eur':
+            today_cash = round(today_cash / self.EURO_RATE, 2)
+            curr = "Euro"
+        if today_cash > 0:
+            return f"На сегодня осталось {today_cash} {curr}"
+        elif today_cash == 0:
+            return "Денег нет, держись"
+        today_cash = abs(today_cash)
+        return f"Денег нет, держись: твой долг - {today_cash} {curr}"
